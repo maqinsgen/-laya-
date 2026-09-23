@@ -1,0 +1,157 @@
+# 私有子项目：wcdb_api 源码（保密，单独私有仓库 JiQingzhe2004/wcdb_api）
+# 主仓库公开，只发布 resources/ 下的编译产物，不暴露源码
+wcdb_api/
+
+# Logs
+logs
+*.log
+build_log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+dist
+dist-ssr
+dist-electron
+coverage
+.vite
+.cache
+__pycache__/
+*.pyc
+.eslintcache
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build output
+out
+release
+.tmp-old-check/
+.tmp/release-announcement.json
+
+# TypeScript 增量编译缓存
+*.tsbuildinfo
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local evaluation data
+evaluation/retrieval/*.local.jsonl
+evaluation/retrieval/*.report.json
+
+# OS
+Thumbs.db
+
+# Docs
+/docs/**
+!/docs/PUBLISHING.md
+!/docs/ANNOUNCEMENT.zh-CN.md
+!/docs/assets/
+!/docs/assets/notewake-cover.svg
+!/docs/upstream-workflows/
+!/docs/upstream-workflows/*.yml.disabled
+语音转文字接口文档
+
+# WeFolw
+WeFolw
+WeFlow
+WxKey-CC
+upx
+/native-dlls/**
+!/native-dlls/macos/
+!/native-dlls/macos/image_scan_helper.c
+native/image-decrypt/
+native/image-decrypt/target
+resources/whisper
+xkey
+.claude/
+.tmp
+Agent示例UI/
+
+# Embedded CLI local outputs
+CipherTalk-CLI/node_modules/
+CipherTalk-CLI/dist/
+CipherTalk-CLI/coverage/
+CipherTalk-CLI/.miyu-test/
+.agents
+skills-lock.json
+# heroui-agents-md
+.heroui-docs/
+release-verify/
+/tools/
+
+# 插件打包产物
+*.ctp
+*.ctplugin
+
+# 本地插件开发工作区（制作/调试插件用，不纳入版本库）
+plugin-workspace/
+MomentsBridge/
+
+# Local publication mirror and audit reports (never upload working history).
+.publish/
+.codex/
+.claude/
+
+# Personal configuration, captured data and signing credentials.
+data/
+userdata/
+user-data/
+captures/
+exports/
+backups/
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3-shm
+*.sqlite3-wal
+*.db-journal
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.mobileprovision
+.npmrc
+.netrc
+
+# Android / iOS build caches and per-developer settings.
+**/.gradle/
+**/local.properties
+**/xcuserdata/
+*.xcuserstate
+mobile/build/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/capacitor-cordova-android-plugins/
+mobile/android/app/src/main/assets/public/
+mobile/android/app/src/main/assets/capacitor.config.json
+mobile/android/app/src/main/assets/capacitor.plugins.json
+mobile/ios/App/App/public/
+mobile/ios/App/App/capacitor.config.json
+mobile/ios/App/Pods/
+mobile/ios/DerivedData/
+mobile/ios/capacitor-cordova-ios-plugins/

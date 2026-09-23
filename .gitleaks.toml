@@ -1,0 +1,32 @@
+title = "Notewake public-source secret scan"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Public fixed protocol header, verified against https://docs.volcengine.com/docs/6561/2534847"
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)electron/services/ai/volcengineRealtimeService\.ts$''']
+regexes = ['''(?m)^[+]?export\ const\ VOLCENGINE_REALTIME_APP_KEY\ =\ 'PlgvMymc7f3tQnJ6'$''']
+
+[[allowlists]]
+description = "SHA-256 checksum of the public upstream binary; not a credential"
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)scripts/check\-macos\-package\.js$''']
+regexes = ['''(?m)^[+]?const\ EXPECTED_WCDB_API_SHA256\ =\ '4d174824ccc8afa9b0aa82c8edf8b7570c1d43f09ac5da97c561fad1f547e509';$''']
+
+[[allowlists]]
+description = "Explicitly incorrect synthetic secret in a negative decryption test"
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)scripts/test\-mobile\-connection\.mjs$''']
+regexes = ['''(?m)^[+]?await\ assert\.rejects\(\(\)\ =>\ syncWithWebDav\(config,\ \{\ \.\.\.credentials,\ secret:\ 'wrong\-secret\-12345'\ \},\ local,\ \{\ requireExisting:\ true\ \}\),\ /无法解密/\)$''']
+
+[[allowlists]]
+description = "Deterministic hex fixture for database-key format validation"
+condition = "AND"
+regexTarget = "line"
+paths = ['''(?:^|/)scripts/test\-wechat\-setup\.ts$''']
+regexes = ['''(?m)^[+]?const\ key\ =\ 'abcdef0123456789'\.repeat\(4\)$''']

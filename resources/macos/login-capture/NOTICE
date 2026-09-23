@@ -1,0 +1,30 @@
+wcdb-key-tool
+Copyright (c) 2025 CloudDreamAI / TANGandXUE
+License: MIT (see LICENSE in this directory)
+
+Upstream: https://github.com/TANGandXUE/wcdb-key-tool
+Revision: 79f1b5b92e12c66aa281b4a60a3c478b5f547dfa
+Source: wcdb_key_tool_macos.py, verify_enc_key and _derive_keys_from_passphrase
+https://github.com/TANGandXUE/wcdb-key-tool/blob/79f1b5b92e12c66aa281b4a60a3c478b5f547dfa/wcdb_key_tool_macos.py
+
+scripts/wechat_key_verify.py adapts the first-page HMAC and passphrase
+derivation algorithm. It adds bounded read-only file access, candidate-file
+permission checks, aggregate-only output, and fail-closed validation.
+Upstream memory scanning, debugger capture, caching, and decryption are not
+included or executed by that verification tool.
+
+scripts/wechat_lldb_capture.py independently implements an experimental
+hardware breakpoint at the upstream CCKeyDerivationPBKDF capture point.
+It restricts the target, parameters and account salts, uses private output,
+and explicitly detaches without the upstream global debugger cleanup.
+
+The packaged equivalents live in resources/macos/login-capture/.
+electron/services/wechatLoginCaptureService.ts also adapts the SQLCipher 4
+first-page HMAC algorithm for in-process account verification.
+
+The same algorithm is used by electron/services/wechatLoginCaptureService.ts.
+The canonical Python verifier and a separately implemented supervised LLDB
+capture live in resources/macos/login-capture; scripts provide compatibility
+entry points. The capture point and CommonCrypto argument mapping follow the
+upstream revision above. Its global debugger termination and key cache logic
+are not used.

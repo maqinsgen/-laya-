@@ -1,0 +1,12 @@
+.wechat-login-guide { border: 1px solid var(--border); border-radius: 16px; padding: 18px; background: var(--surface); }
+.wechat-login-guide-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.wechat-login-guide-title > span { font-size: 15px; font-weight: 650; }
+.wechat-login-guide-title small { color: var(--muted); font-size: 11px; }
+.wechat-login-guide ol { display: grid; gap: 13px; margin: 18px 0; padding-left: 22px; list-style: decimal; }
+.wechat-login-guide li { padding-left: 5px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.wechat-login-guide li::marker { color: var(--accent); font-weight: 650; }
+.wechat-login-guide li strong { display: block; color: var(--foreground); font-size: 13px; }
+.wechat-login-guide li span { display: block; }
+.wechat-login-guide-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.wechat-login-guide-status { border-radius: 10px; padding: 12px; margin: 14px 0 0; background: color-mix(in srgb, var(--accent) 10%, var(--surface)); color: var(--foreground); font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.wechat-login-guide-note { color: var(--muted); font-size: 11px; line-height: 1.65; margin: 12px 0 0; }

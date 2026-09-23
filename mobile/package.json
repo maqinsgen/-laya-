@@ -1,0 +1,39 @@
+{
+  "name": "ciphertalk-todo-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "sync": "npm run build && cap sync",
+    "android": "cap open android",
+    "ios": "cap open ios"
+  },
+  "dependencies": {
+    "@aparajita/capacitor-secure-storage": "^8.0.0",
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/calendar": "^1.0.1",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/ios": "^8.5.0",
+    "@capacitor/local-notifications": "^8.3.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.6.3",
+    "vite": "^6.4.1"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  }
+}

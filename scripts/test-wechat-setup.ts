@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import { isValidDatabaseKey, normalizeDatabaseKey, sanitizeWechatSetupDraft } from '../src/shared/wechatSetup.ts'
+const key = 'abcdef0123456789'.repeat(4)
+assert.equal(normalizeDatabaseKey('  0x' + key.slice(0, 32) + '\n' + key.slice(32) + ' '), key)
+assert.ok(isValidDatabaseKey(key))
+assert.ok(isValidDatabaseKey(key.toUpperCase()))
+assert.equal(isValidDatabaseKey('g'.repeat(64)), false)
+assert.equal(isValidDatabaseKey(key.slice(1)), false)
+assert.equal(isValidDatabaseKey('0x' + key), false)
+const draft = sanitizeWechatSetupDraft({ dbPath: '/demo', cachePath: '/cache', wxid: 'example', decryptKey: key, imageAesKey: 'secret', password: 'secret' })
+assert.deepEqual(draft, { dbPath: '/demo', cachePath: '/cache', wxid: 'example' })
+assert.ok(!JSON.stringify(draft).includes(key))
+assert.deepEqual(sanitizeWechatSetupDraft(null), { dbPath: '', cachePath: '', wxid: '' })
+assert.deepEqual(sanitizeWechatSetupDraft({ dbPath: {}, cachePath: 3 }), { dbPath: '', cachePath: '', wxid: '' })
+console.log('wechat setup: hex validation, paste normalization, legacy secret exclusion passed')

@@ -1,0 +1,44 @@
+name: Core tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      # These tests use synthetic data and mocked services. Skipping install
+      # hooks avoids Electron/native compilation and any desktop launch.
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+      - name: Renderer TypeScript
+        run: npx --no-install tsc --noEmit -p tsconfig.json
+      - name: Source evidence and reminders
+        run: |
+          npm run test:todo-date-evidence
+          npm run test:todo-event-quote
+          npm run test:todo-calendar
+          npm run test:todo-schedule
+          npm run test:todo-candidate
+          npm run test:todo-dedupe
+      - name: Agent and synchronization contracts
+        run: |
+          npm run test:todo-intelligence
+          npm run test:todo-sync
+          npm run test:todo-jev-config
+          npm run test:todo-jev
+          npm run test:todo-service-contracts

@@ -1,0 +1,15 @@
+.wechat-readiness { padding: 18px; border: 1px solid var(--border); border-radius: 18px; background: color-mix(in srgb, var(--surface) 92%, #e4eee9); color: var(--foreground); }
+.wechat-readiness-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.wechat-readiness-heading span { font-size: 9px; letter-spacing: .15em; color: var(--muted); font-weight: 700; }
+.wechat-readiness h3 { font-size: 17px; margin: 4px 0; font-weight: 650; }
+.wechat-readiness button { flex-shrink: 0; border: 1px solid var(--border); border-radius: 9px; padding: 7px 10px; background: var(--surface); color: var(--foreground); font-size: 12px; cursor: pointer; }
+.wechat-readiness button:disabled { opacity: .55; cursor: wait; }
+.wechat-readiness p { margin: 6px 0; font-size: 12px; line-height: 1.65; color: var(--muted); }
+.wechat-readiness ul { padding: 0; margin: 13px 0; display: grid; gap: 11px; list-style: none; }
+.wechat-readiness li { display: flex; align-items: flex-start; gap: 10px; }
+.wechat-readiness li strong { font-size: 12px; font-weight: 600; }
+.wechat-readiness li p { margin: 2px 0 0; overflow-wrap: anywhere; }
+.wechat-check-mark { display: grid; width: 22px; height: 22px; flex-shrink: 0; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.wechat-readiness [data-status="pass"] .wechat-check-mark { color: #178161; background: #17816115; }
+.wechat-readiness [data-status="blocked"] .wechat-check-mark { color: #b06b28; background: #b06b2815; }
+.wechat-readiness small { display: block; font-size: 11px; line-height: 1.6; color: var(--muted); }

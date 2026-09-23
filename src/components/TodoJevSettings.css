@@ -1,0 +1,57 @@
+.todo-jev-settings { position: relative; max-width: 1440px; margin: 0 auto 22px; border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent); border-radius: 18px; background: color-mix(in srgb, var(--background) 95%, #93c5fd); }
+.todo-jev-settings > summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 74px; padding: 16px 22px; cursor: pointer; list-style: none; }
+.todo-jev-settings > summary::-webkit-details-marker { display: none; }
+.todo-jev-settings > summary > span:first-child { display: grid; gap: 5px; }
+.todo-jev-settings > summary strong { font-size: 14px; }
+.todo-jev-settings > summary small { color: var(--muted); font-size: 11px; }
+.todo-jev-badge { display: inline-flex; align-items: center; gap: 12px; flex: none; color: var(--muted); font-size: 11px; }
+.todo-jev-badge::after { content: '+'; font-size: 20px; font-weight: 400; }
+.todo-jev-settings[open] .todo-jev-badge::after { content: '−'; }
+.todo-jev-badge.is-enabled { color: #16a34a; }
+.todo-jev-content { padding: 0 22px 22px; }
+.todo-jev-disclosure { margin: 0 0 18px; padding: 14px 16px; border-radius: 12px; background: color-mix(in srgb, #3b82f6 8%, var(--background)); color: var(--foreground); font-size: 12px; line-height: 1.8; }
+.todo-jev-content fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.todo-jev-enable, .todo-jev-clear { display: flex; align-items: center; gap: 9px; min-height: 40px; color: var(--foreground); font-size: 12px; cursor: pointer; }
+.todo-jev-enable { font-weight: 650; margin-bottom: 10px; }
+.todo-jev-content input[type='checkbox'] { width: 17px; height: 17px; accent-color: #2563eb; }
+.todo-jev-fields { display: grid; grid-template-columns: minmax(200px, 1.5fr) minmax(130px, .65fr) minmax(180px, 1fr); gap: 14px; }
+.todo-jev-fields label { display: block; min-width: 0; font-size: 12px; font-weight: 600; }
+.todo-jev-fields label > span { color: var(--muted); margin-left: 8px; font-size: 10px; font-weight: 400; }
+.todo-jev-fields input { display: block; width: 100%; min-width: 0; min-height: 42px; margin-top: 8px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent); border-radius: 10px; color: var(--foreground); background: var(--background); outline: none; font-size: 12px; font-weight: 400; }
+.todo-jev-fields input:focus-visible { border-color: #3b82f6; box-shadow: 0 0 0 3px color-mix(in srgb, #3b82f6 15%, transparent); }
+.todo-jev-help, .todo-jev-actions small { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.todo-jev-help code { overflow-wrap: anywhere; }
+.todo-jev-endpoint-warning { color: #b45309; font-size: 12px; line-height: 1.7; }
+.todo-jev-actions { display: flex; align-items: center; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+.todo-jev-actions button, .todo-jev-retry { min-height: 40px; padding: 9px 14px; border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent); border-radius: 10px; color: var(--foreground); background: var(--background); cursor: pointer; font-size: 12px; }
+.todo-jev-actions button.is-primary { border-color: #2563eb; color: #fff; background: #2563eb; }
+.todo-jev-actions small { flex: 1 1 250px; margin: 0; }
+.todo-jev-content button:disabled, .todo-jev-content fieldset:disabled { opacity: .6; }
+.todo-jev-content button:focus-visible, .todo-jev-settings summary:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
+.todo-jev-message { margin: 16px 0 0; padding: 12px 14px; border-radius: 10px; color: #15803d; background: color-mix(in srgb, #22c55e 9%, var(--background)); font-size: 12px; line-height: 1.8; }
+.todo-jev-message.is-error { color: #dc2626; background: color-mix(in srgb, #ef4444 8%, var(--background)); }
+.todo-decision-stats { position: relative; display: flex; max-width: 1440px; margin: -6px auto 22px; padding: 12px 16px; flex-wrap: wrap; gap: 8px 22px; border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent); border-radius: 12px; color: var(--muted); font-size: 11px; }
+.todo-decision-stats strong { color: var(--foreground); font-weight: 650; }
+.todo-evidence { margin-top: 10px; padding: 12px 14px; border: 1px solid color-mix(in srgb, #3b82f6 15%, transparent); border-radius: 12px; background: color-mix(in srgb, #3b82f6 4%, var(--background)); }
+.todo-evidence-heading { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 11px; }
+.todo-evidence-heading strong { color: var(--foreground); font-size: 11px; }
+.todo-evidence-review { padding: 3px 7px; border-radius: 6px; color: #b45309; background: color-mix(in srgb, #f59e0b 12%, var(--background)); }
+.todo-evidence > p { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 8px 0 0; }
+.todo-evidence > blockquote { margin: 10px 0 0; padding-left: 10px; border-left: 2px solid color-mix(in srgb, #3b82f6 40%, transparent); color: var(--foreground); font-size: 12px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.todo-date-action { margin-top: 10px; }
+.todo-date-open { padding: 6px 0; border: 0; color: #2563eb; background: transparent; font-size: 12px; cursor: pointer; }
+.todo-date-editor { display: grid; gap: 9px; padding: 14px; border: 1px solid color-mix(in srgb, #3b82f6 20%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--background) 96%, #93c5fd); }
+.todo-date-editor > label { color: var(--foreground); font-size: 12px; font-weight: 650; }
+.todo-date-editor > input { min-width: 0; width: min(100%, 320px); min-height: 42px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent); border-radius: 9px; color: var(--foreground); background: var(--background); font-size: 13px; }
+.todo-date-editor > small { color: var(--muted); font-size: 11px; line-height: 1.7; }
+.todo-date-editor > div { display: flex; gap: 8px; flex-wrap: wrap; }
+.todo-date-editor button { min-height: 36px; padding: 7px 12px; border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent); border-radius: 8px; color: var(--foreground); background: var(--background); font-size: 12px; cursor: pointer; }
+.todo-date-editor button[type='submit'] { color: white; border-color: #2563eb; background: #2563eb; }
+.todo-date-editor button:disabled, .todo-date-open:disabled { opacity: .55; cursor: default; }
+.todo-date-editor input:focus-visible, .todo-date-editor button:focus-visible, .todo-date-open:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
+@media (max-width: 1000px) { .todo-jev-fields { grid-template-columns: 1fr 1fr; } .todo-jev-fields > label:first-child { grid-column: 1 / -1; } }
+@media (max-width: 620px) { .todo-jev-fields { grid-template-columns: 1fr; } .todo-jev-content { padding: 0 16px 18px; } .todo-jev-settings > summary { padding: 16px; gap: 12px; } .todo-jev-fields input { font-size: 16px; } }
+.todo-jev-backend { display: grid; grid-template-columns: auto minmax(200px, 420px); align-items: center; gap: 16px; margin: 0 0 16px; color: var(--foreground); font-size: 12px; font-weight: 650; }
+.todo-jev-backend select { min-height: 42px; width: 100%; min-width: 0; padding: 9px 12px; border: 1px solid color-mix(in srgb, var(--foreground) 15%, transparent); border-radius: 10px; color: var(--foreground); background: var(--background); font-size: 13px; }
+.todo-jev-backend select:focus-visible { outline: 3px solid #93c5fd; outline-offset: 3px; }
+@media (max-width: 620px) { .todo-jev-backend { grid-template-columns: 1fr; gap: 8px; } }
