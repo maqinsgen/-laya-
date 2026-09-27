@@ -11,11 +11,12 @@ import { join } from 'path'
 import { ConfigService } from './config'
 import { getAppPath, getAppVersion, getUserDataPath, isElectronPackaged } from './runtimePaths'
 import { getElectronWorkerEnv } from './workerEnvironment'
+import { loadWechatKeyring, type WechatDatabaseKeyring } from './wechatKeyring'
 
 type UtilityRequest = { id: number; type: string; payload?: any }
 type UtilityResponse = { id: number; result?: any; error?: string; type?: string; payload?: any }
 type Pending = { resolve: (value: any) => void; reject: (reason: any) => void }
-type OpenPayload = { dbPath: string; hexKey: string; wxid: string }
+type OpenPayload = { dbPath: string; hexKey: string; wxid: string; databaseKeys?: WechatDatabaseKeyring }
 
 const PARAMS_UNSUPPORTED = 'native 未支持参数化查询'
 
@@ -101,9 +102,10 @@ export class WcdbService extends EventEmitter {
   private monitorRequested = false
 
   // ========= 公共 API（保持与旧实现一致） =========
-  async testConnection(dbPath: string, hexKey: string, wxid: string): Promise<{ success: boolean; error?: string; sessionCount?: number }> {
+  async testConnection(dbPath: string, hexKey: string, wxid: string, databaseKeys?: WechatDatabaseKeyring): Promise<{ success: boolean; error?: string; sessionCount?: number }> {
     try {
-      return await this.call('testConnection', { dbPath, hexKey, wxid })
+      const keys = process.platform === 'win32' ? databaseKeys || loadWechatKeyring(dbPath, wxid, hexKey) : undefined
+      return await this.call('testConnection', { dbPath, hexKey, wxid, databaseKeys: keys })
     } catch (e) {
       return {
         success: false,
@@ -114,7 +116,7 @@ export class WcdbService extends EventEmitter {
 
   async open(dbPath: string, hexKey: string, wxid: string): Promise<boolean> {
     this.shuttingDown = false
-    const payload = { dbPath, hexKey, wxid }
+    const payload: OpenPayload = { dbPath, hexKey, wxid, databaseKeys: process.platform === 'win32' ? loadWechatKeyring(dbPath, wxid, hexKey) : undefined }
     this.lastOpenPayload = payload
     this.openPromise = this.call<boolean>('open', payload)
       .finally(() => {
@@ -494,7 +496,8 @@ export class WcdbService extends EventEmitter {
       const hexKey = String(configService.get('decryptKey') || '').trim()
       const wxid = String(configService.get('myWxid') || '').trim()
       if (!dbPath || !hexKey || !wxid) return null
-      return { dbPath, hexKey, wxid }
+      const databaseKeys = process.platform === 'win32' ? loadWechatKeyring(dbPath, wxid, hexKey) : undefined
+      return { dbPath, hexKey, wxid, databaseKeys }
     } catch {
       return null
     } finally {

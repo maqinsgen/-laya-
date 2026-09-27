@@ -67,6 +67,7 @@ Thumbs.db
 /docs/**
 !/docs/PUBLISHING.md
 !/docs/ANNOUNCEMENT.zh-CN.md
+!/docs/windows-sqlcipher.md
 !/docs/assets/
 !/docs/assets/notewake-cover.svg
 !/docs/upstream-workflows/
@@ -128,6 +129,7 @@ backups/
 *.sqlite3-shm
 *.sqlite3-wal
 *.db-journal
+wechat-database-keyrings.v1.json*
 *.key
 *.pem
 *.p12

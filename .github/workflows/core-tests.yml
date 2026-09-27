@@ -42,3 +42,30 @@ jobs:
           npm run test:todo-jev-config
           npm run test:todo-jev
           npm run test:todo-service-contracts
+  windows-wechat:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      # All fixtures are synthetic. No WeChat installation, account or key is used.
+      # The SQLCipher package includes its Windows Node-API binary.
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+      - name: Key capture and lifecycle contracts
+        run: |
+          npm run test:wechat-database-keys
+          npm run test:wechat-keyring
+          npm run test:windows-wechat
+          npm run test:windows-wcdb-service
+          npm run test:wechat-key-flow
+          npm run test:wechat-ui-lifecycle
+      - name: Real encrypted database and WAL fixtures
+        run: |
+          npm run test:windows-sqlcipher
+          npm run test:windows-wcdb-core

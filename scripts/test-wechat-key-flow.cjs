@@ -73,6 +73,19 @@ function fixture(options = {}) {
     } } },
     '../../services/wxKeyService': { wxKeyService: wxService },
     '../../services/wxKeyServiceMac': { wxKeyServiceMac: macService },
+    '../../services/windowsWechatKeyService': { windowsWechatKeyService: {
+      checkRuntime: () => ({ ready: options.runtimeReady !== false }),
+      capture: async ({ signal, onStatus, wxid }) => {
+        scans++
+        const candidate = options.scan ? await options.scan(signal, onStatus, wxid) : options.noKey ? null : account
+        signal.throwIfAborted()
+        if (!candidate) return {success:false, needAdmin: options.diag?.pids > 0 && options.diag?.opened === 0 || undefined, error:'No verified candidate'}
+        validations++
+        const checked = options.validate ? await options.validate('/mock/data', key, wxid) : {success:true}
+        signal.throwIfAborted()
+        return checked.success ? {success:true,key,validatedWxid:wxid || 'wxid_test'} : {success:false,error:'Reader unavailable'}
+      },
+    } },
     '../../services/wechatLoginCaptureService': { wechatLoginCaptureService: {
       checkRuntime: async () => ({ ready: options.runtimeReady !== false, error: options.runtimeReady === false ? 'LLDB unavailable' : undefined }),
       capture: async ({ signal, onStatus, wxid }) => {
@@ -466,10 +479,11 @@ async function main() {
   const pending = cancelled.start()
   await tick()
   assert.equal(cancelled.stats().validations, 1)
-  await cancelled.cancel()
+  const cancelPending = cancelled.cancel()
   const progressAtCancel = cancelled.statuses.length
   assert.equal((await cancelled.start()).success, false, 'a pending native operation must not overlap a retry')
   finishValidation({ success: true })
+  await cancelPending
   assert.equal((await pending).cancelled, true, 'a late validated key must never be returned after cancellation')
   assert.equal(cancelled.statuses.length, progressAtCancel)
   assertNoAcquisitionListeners(cancelled.sender)

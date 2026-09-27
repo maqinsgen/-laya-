@@ -80,6 +80,7 @@ function loadCore() {
     require(name) {
       if (name === 'path') return path
       if (name === 'fs') return fs
+      if (name === './windowsSqlcipher') return { WindowsSqlcipherReader: class {} }
       if (name === 'koffi') return koffi
       if (name === './chat/rowDecoders') return {}
       throw new Error(`Unexpected core dependency: ${name}`)

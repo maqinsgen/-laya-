@@ -46,10 +46,10 @@ async function handleMessage(msg: any) {
         result = { success: true }
         break
       case 'testConnection':
-        result = await core.testConnection(payload.dbPath, payload.hexKey, payload.wxid)
+        result = await core.testConnection(payload.dbPath, payload.hexKey, payload.wxid, payload.databaseKeys)
         break
       case 'open':
-        result = await core.open(payload.dbPath, payload.hexKey, payload.wxid)
+        result = await core.open(payload.dbPath, payload.hexKey, payload.wxid, payload.databaseKeys)
         break
       case 'close':
         core.close()

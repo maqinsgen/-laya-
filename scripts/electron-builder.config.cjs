@@ -59,7 +59,7 @@ function getExtraResources(buildTarget) {
         to: 'resources/',
         // *.dll = 顶层 WCDB/wcdb_api/wx_key；wedecrypt/** = 图片解密原生插件(.node)，
         // 之前只写 *.dll 把 wedecrypt 漏掉了，导致发布版图片解密全失败。非当前平台的 .node 由 afterPack 裁剪。
-        filter: ['*.dll', 'wedecrypt/**/*']
+        filter: ['*.dll', 'wedecrypt/**/*', 'windows/**/*']
       },
       ...common,
       {
@@ -148,6 +148,7 @@ function getFiles(buildTarget) {
         '!node_modules/**/*.dylib',
         '!node_modules/sherpa-onnx-node/bin/!(win-x64)/**/*',
         '!node_modules/ffmpeg-static/bin/!(win32-x64)/**/*',
+        '!node_modules/better-sqlite3-multiple-ciphers/prebuilds/!(win32-x64).node',
         'node_modules/koffi/build/koffi/win32_x64/**/*'
       ]
     )
@@ -169,6 +170,7 @@ function getFiles(buildTarget) {
         '!node_modules/sherpa-onnx-node/node_modules/sherpa-onnx-win-*/**/*',
         '!node_modules/sherpa-onnx-node/node_modules/sherpa-onnx-linux-*/**/*',
         'node_modules/sherpa-onnx-node/node_modules/sherpa-onnx-darwin-*/**/*',
+        '!node_modules/better-sqlite3-multiple-ciphers/prebuilds/!(darwin-*).node',
         'node_modules/koffi/build/koffi/darwin_*/**/*'
       ]
     )

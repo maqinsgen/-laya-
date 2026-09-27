@@ -68,6 +68,8 @@ npm ci --legacy-peer-deps
 npm run dev
 ```
 
+Windows 微信数据库读取使用独立开源 SQLCipher 组件，随 `npm ci` 安装，不再依赖 `wcdb_api.dll` 的授权服务。它按每个数据库的盐值选择密钥，只读访问原始数据库及已提交的 WAL；构建与验证细节见 [Windows SQLCipher 说明](docs/windows-sqlcipher.md)。
+
 首次使用按这个顺序：
 
 1. **先看信息助手。** 可以手动补记事项，再连接需要的消息来源。
@@ -82,7 +84,13 @@ npm run dev
 
 ### 微信连接
 
-连接向导提供环境预检、手动填写密钥和支持环境下的自动获取。Apple Silicon Mac 已接入登录期捕获：
+连接向导提供环境预检、手动填写密钥和支持环境下的自动获取。
+
+**Windows x64 + 微信 4.x：登录微信并打开近期聊天 → 选择微信数据目录和准确账号 → 点击“获取密钥” → 核心数据库全部通过逐库 HMAC 校验及真实读取测试 → 保存并完成连接。** 取消、超时或验证失败不会保存本次候选，也不会替换原连接配置。新增逐库 keyring 由当前系统用户的安全存储加密保存；旧单密钥字段仍为兼容保留，这不代表所有配置中的密钥都已迁移为系统加密。
+
+旧 Windows 安装包需要从本版源码重新构建并安装更新。取钥设计参考 [ou-o/wechat-extract](https://github.com/ou-o/wechat-extract)，没有引入其代码，也无需安装它。当前 Mac 上的合成测试不等于 Windows 实机取钥验收；操作、保存范围和验证边界见 [Windows SQLCipher 说明](docs/windows-sqlcipher.md)。
+
+Apple Silicon Mac 已接入登录期捕获：
 
 **退出微信账号并停留登录页 → 在知灯开始获取 → 管理员授权 → 等待“监听已就绪” → 微信登录并在手机确认 → 逐库验证后保存。**
 

@@ -69,7 +69,13 @@
     "test:todo-service-contracts": "node scripts/test-todo-service-contracts.cjs",
     "test:wechat-ui-lifecycle": "node scripts/test-wechat-ui-lifecycle.cjs",
     "test:wechat-login-capture": "node scripts/test-wechat-login-capture.cjs && python3 scripts/test-wechat-login-helper.py && python3 scripts/test-wechat-key-verify.py",
-    "test:laya-app": "node scripts/benchmark-laya-app.cjs"
+    "test:laya-app": "node scripts/benchmark-laya-app.cjs",
+    "test:windows-sqlcipher": "node scripts/test-windows-sqlcipher.cjs",
+    "test:wechat-database-keys": "node scripts/test-wechat-database-keys.cjs",
+    "test:wechat-keyring": "node scripts/test-wechat-keyring.cjs",
+    "test:windows-wechat": "node scripts/test-wechat-windows-scanner.cjs && node scripts/test-windows-wechat-service.cjs && node scripts/test-windows-wechat-package.cjs",
+    "test:windows-wcdb-core": "node scripts/test-windows-wcdb-core.cjs",
+    "test:windows-wcdb-service": "node scripts/test-windows-wcdb-service.cjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.11",
@@ -100,6 +106,7 @@
     "ai": "^7.0.19",
     "ansi-to-react": "^6.2.6",
     "better-sqlite3": "^12.5.0",
+    "better-sqlite3-multiple-ciphers": "13.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -194,7 +201,8 @@
         "!node_modules/**/{darwin,mac}/**/*",
         "!node_modules/**/*.dylib",
         "!node_modules/sherpa-onnx-node/bin/!(win-x64)/**/*",
-        "!node_modules/ffmpeg-static/bin/!(win32-x64)/**/*"
+        "!node_modules/ffmpeg-static/bin/!(win32-x64)/**/*",
+        "!node_modules/better-sqlite3-multiple-ciphers/prebuilds/!(win32-x64).node"
       ]
     },
     "mac": {
@@ -205,7 +213,10 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "resources/macos/entitlements.mac.plist",
-      "entitlementsInherit": "resources/macos/entitlements.mac.plist"
+      "entitlementsInherit": "resources/macos/entitlements.mac.plist",
+      "files": [
+        "!node_modules/better-sqlite3-multiple-ciphers/prebuilds/!(darwin-*).node"
+      ]
     },
     "nsis": {
       "differentialPackage": false,
@@ -343,7 +354,8 @@
       "dist-electron/**/*",
       "resources/wedecrypt/*.node",
       "resources/wedecrypt/**/*.node",
-      "resources/**/*"
+      "resources/**/*",
+      "node_modules/better-sqlite3-multiple-ciphers/**/*"
     ]
   }
 }

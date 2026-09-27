@@ -1,5 +1,6 @@
 import { basename, delimiter, dirname, join } from 'path'
-import { existsSync, readdirSync, readFileSync, statSync } from 'fs'
+import { existsSync, readdirSync, readFileSync, statSync, openSync, readSync, closeSync } from 'fs'
+import { WindowsSqlcipherReader, type WindowsSqlcipherKeyMaterial } from './windowsSqlcipher'
 import { decodeMessageContent, getRowField, coerceRowNumber } from './chat/rowDecoders'
 
 // 消息表 local_type 列在不同微信版本下的可能列名
@@ -51,6 +52,8 @@ export class WcdbCore {
   private wcdbCheckLicense: any = null
 
   // 官方 libwcdb_api 被云端拒绝后，直接走 libWCDB 里的 SQLCipher。
+  private windowsReader: WindowsSqlcipherReader | null = null
+  private currentDatabaseKeys: Record<string, string> | undefined
   private sqliteMode = false
   private preferSqliteFallback = false
   private sqliteOpen: any = null
@@ -131,6 +134,16 @@ export class WcdbCore {
 
   async initialize(): Promise<{ success: boolean; error?: string }> {
     if (this.initialized) return { success: true }
+    // Windows uses the independently built SQLCipher reader. It never loads
+    // the inherited time-limited wcdb_api.dll, including on reader failures.
+    if (process.platform === 'win32') {
+      const runtime = WindowsSqlcipherReader.checkRuntime()
+      if (!runtime.ok) return { success: false, error: runtime.error || 'Windows 数据库读取组件不可用，请安装完整版本。' }
+      this.windowsReader = new WindowsSqlcipherReader()
+      this.sqliteMode = true
+      this.initialized = true
+      return { success: true }
+    }
 
     try {
       this.koffi = require('koffi')
@@ -342,11 +355,11 @@ export class WcdbCore {
     return null
   }
 
-  private tryOpenWithCandidates(sessionDbPaths: string[], hexKey: string, storeHandle = true): { success: boolean; handle?: number; matchedPath?: string; rawKey?: boolean; errors: string[] } {
+  private tryOpenWithCandidates(sessionDbPaths: string[], hexKey: string, storeHandle = true, databaseKeys?: Record<string, string>): { success: boolean; handle?: number; matchedPath?: string; rawKey?: boolean; errors: string[] } {
     const errors: string[] = []
     for (const sessionDbPath of sessionDbPaths) {
       if (this.sqliteMode) {
-        const opened = this.sqliteOpenEncrypted(sessionDbPath, hexKey, storeHandle)
+        const opened = this.sqliteOpenEncrypted(sessionDbPath, hexKey, storeHandle, databaseKeys)
         if (opened.ok) {
           return { success: true, handle: 1, matchedPath: sessionDbPath, rawKey: opened.rawKey, errors }
         }
@@ -389,7 +402,8 @@ export class WcdbCore {
     this.sqliteQuery(db, sql)
   }
 
-  private sqliteOpenEncrypted(filePath: string, hexKey: string, storeHandle = true): { ok: boolean; rawKey?: boolean; error?: string } {
+  private sqliteOpenEncrypted(filePath: string, hexKey: string, storeHandle = true, databaseKeys?: Record<string, string>): { ok: boolean; rawKey?: boolean; error?: string } {
+    if (this.windowsReader) return this.windowsOpenEncrypted(filePath, hexKey, storeHandle, databaseKeys)
     if (!this.sqliteOpen || !existsSync(filePath)) {
       return { ok: false, error: `数据库不存在: ${filePath}` }
     }
@@ -446,11 +460,53 @@ export class WcdbCore {
     return { ok: false, error: lastError || 'SQLCipher 密钥不匹配' }
   }
 
+  private windowsOpenEncrypted(filePath: string, hexKey: string, storeHandle: boolean, databaseKeys?: Record<string, string>): {ok: boolean; rawKey?: boolean; error?: string} {
+    const reader = this.windowsReader!
+    let saltHex = ''
+    let descriptor: number | undefined
+    try {
+      descriptor = openSync(filePath, 'r')
+      const salt = Buffer.alloc(16)
+      if (readSync(descriptor, salt, 0, 16, 0) !== 16) return { ok: false, error: '数据库文件不完整。' }
+      saltHex = salt.toString('hex')
+    } catch { return { ok: false, error: '无法读取数据库文件。' } }
+    finally { if (descriptor !== undefined) closeSync(descriptor) }
+    const hex = this.normalizeHexKey(hexKey)
+    if (!/^[0-9a-f]{64}$/.test(hex)) return { ok: false, error: '微信密钥格式无效。' }
+    const materials: WindowsSqlcipherKeyMaterial[] = []
+    if (databaseKeys) {
+      const raw = databaseKeys[saltHex]
+      if (!raw || !/^[0-9a-f]{64}$/i.test(raw)) return { ok: false, error: '这个数据库还没有已验证的密钥，请打开对应聊天后重新获取。' }
+      materials.push({ kind: 'raw', keyHex: raw, saltHex })
+    } else {
+      // Existing single passphrases keep working. A derived raw key is tried
+      // separately and must still pass the multi-database connection probe.
+      materials.push({ kind: 'passphrase', value: Buffer.from(hex, 'hex') }, { kind: 'passphrase', value: hex }, { kind: 'raw', keyHex: hex, saltHex })
+    }
+    let error = '数据库密钥未通过验证。'
+    for (const material of materials) {
+      let db: ReturnType<WindowsSqlcipherReader['open']> | undefined
+      try {
+        db = reader.open(filePath, material)
+        const probe = reader.query(db, 'SELECT count(*) AS c FROM sqlite_master')
+        if (!probe.ok) { error = probe.error || error; continue }
+        if (storeHandle) {
+          this.sqliteClosePath(filePath)
+          this.sqliteHandles.set(filePath, db)
+          db = undefined
+        }
+        return { ok: true, rawKey: material.kind === 'raw' }
+      } catch { error = '数据库密钥或加密格式未通过验证，请重新获取。' }
+      finally { if (db) reader.close(db) }
+    }
+    return { ok: false, error }
+  }
+
   private sqliteClosePath(filePath: string): void {
     const db = this.sqliteHandles.get(filePath)
     if (!db) return
     this.sqliteHandles.delete(filePath)
-    try { this.sqliteClose?.(db) } catch { /* ignore */ }
+    try { if (this.windowsReader) this.windowsReader.close(db); else this.sqliteClose?.(db) } catch { /* ignore */ }
   }
 
   private sqliteCloseAll(): void {
@@ -478,6 +534,7 @@ export class WcdbCore {
   }
 
   private sqliteQuery(db: any, sql: string): { ok: boolean; rows?: any[]; error?: string } {
+    if (this.windowsReader) return this.windowsReader.query(db, sql)
     const stmtOut = [null as any]
     const tailOut = [null as any]
     const rc = this.sqlitePrepare(db, sql, -1, stmtOut, tailOut)
@@ -528,13 +585,14 @@ export class WcdbCore {
   }
 
   // ============== 连接生命周期 ==============
-  async open(dbPath: string, hexKey: string, wxid: string): Promise<boolean> {
+  async open(dbPath: string, hexKey: string, wxid: string, databaseKeys?: Record<string, string>): Promise<boolean> {
     try {
       if (
         this.handle !== null &&
         this.currentPath === dbPath &&
         this.currentKey === hexKey &&
-        this.currentWxid === wxid
+        this.currentWxid === wxid &&
+        JSON.stringify(this.currentDatabaseKeys) === JSON.stringify(databaseKeys)
       ) {
         return true
       }
@@ -560,7 +618,7 @@ export class WcdbCore {
         return false
       }
 
-      const openResult = this.tryOpenWithCandidates(sessionDbPaths, hexKey)
+      const openResult = this.tryOpenWithCandidates(sessionDbPaths, hexKey, true, databaseKeys)
       if (!openResult.success || !openResult.handle) {
         await this.printLogs()
         return false
@@ -574,6 +632,7 @@ export class WcdbCore {
       this.currentKey = hexKey
       this.currentWxid = wxid
       this.currentDbStoragePath = dbStoragePath
+      this.currentDatabaseKeys = databaseKeys
       this.initialized = true
 
       // 可选：若 native 支持，则绑定当前 wxid
@@ -608,15 +667,17 @@ export class WcdbCore {
     this.currentKey = null
     this.currentWxid = null
     this.currentDbStoragePath = null
+    this.currentDatabaseKeys = undefined
+    this.windowsReader = null
   }
 
   shutdown(): void { this.close() }
 
   isConnected(): boolean { return this.initialized && this.handle !== null }
 
-  async testConnection(dbPath: string, hexKey: string, wxid: string): Promise<{ success: boolean; error?: string; sessionCount?: number }> {
+  async testConnection(dbPath: string, hexKey: string, wxid: string, databaseKeys?: Record<string, string>): Promise<{ success: boolean; error?: string; sessionCount?: number }> {
     try {
-      if (this.handle !== null && this.currentPath === dbPath && this.currentKey === hexKey && this.currentWxid === wxid) {
+      if (this.handle !== null && this.currentPath === dbPath && this.currentKey === hexKey && this.currentWxid === wxid && JSON.stringify(this.currentDatabaseKeys) === JSON.stringify(databaseKeys)) {
         return { success: true, sessionCount: 0 }
       }
 
@@ -634,7 +695,7 @@ export class WcdbCore {
       const sessionDbPaths = this.getCandidateSessionDbs(dbStoragePath)
       if (sessionDbPaths.length === 0) return { success: false, error: `未找到 session.db 文件: ${dbStoragePath}` }
 
-      const openResult = this.tryOpenWithCandidates(sessionDbPaths, hexKey, false)
+      const openResult = this.tryOpenWithCandidates(sessionDbPaths, hexKey, false, databaseKeys)
       if (!openResult.success || !openResult.handle || !openResult.matchedPath) {
         const logs = this.sqliteMode ? '' : await this.printLogs()
         return {
@@ -659,7 +720,7 @@ export class WcdbCore {
           return { success: false, error: '候选只通过单个数据库验证，尚不能确认为整个账号的密钥。现有配置会保留。' }
         }
         for (const filePath of [contactPath, ...messagePaths]) {
-          if (!this.sqliteOpenEncrypted(filePath, hexKey, false).ok) {
+          if (!this.sqliteOpenEncrypted(filePath, hexKey, false, databaseKeys).ok) {
             return { success: false, error: '候选只能打开部分数据库，不能作为整个账号的密钥。现有配置会保留。' }
           }
         }
@@ -711,7 +772,7 @@ export class WcdbCore {
       let db = this.sqliteHandles.get(filePath)
       if (!db) {
         if (!this.currentKey) return { success: false, error: '缺少数据库密钥' }
-        const opened = this.sqliteOpenEncrypted(filePath, this.currentKey)
+        const opened = this.sqliteOpenEncrypted(filePath, this.currentKey, true, this.currentDatabaseKeys)
         if (!opened.ok) return { success: false, error: opened.error || '打开数据库失败' }
         db = this.sqliteHandles.get(filePath)
       }

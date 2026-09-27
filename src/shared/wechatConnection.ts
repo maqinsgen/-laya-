@@ -49,20 +49,20 @@ export function buildWechatPreflight(input: {
     checks.push({
       id: 'component', label: '本机读取组件',
       status: input.componentReady ? 'pass' : 'blocked',
-      detail: input.componentReady ? (input.platform === 'darwin' ? '登录捕获组件已就绪，开始获取时会请求系统授权。' : '已找到读取组件，获取时会进一步检查能否加载。')
+      detail: input.componentReady ? (input.platform === 'darwin' ? '登录捕获组件已就绪，开始获取时会请求系统授权。' : '只读扫描与开源数据库组件已就绪，将逐库验证密钥。')
         : input.componentError || '读取组件缺失。请安装适合当前系统的完整版本后重试。',
     }, {
       id: 'process', label: '微信运行状态', status: input.running ? 'pass' : 'blocked',
       detail: input.platform === 'darwin'
         ? (input.running ? '已检测到微信。获取前请退出账号，停留登录界面，等监听就绪后再登录。' : '请打开电脑版微信并停留登录界面，再点击重新检查。')
-        : input.running ? '已检测到微信。请确保已登录，并打开任意聊天。'
+        : input.running ? '已检测到微信 4.x。请保持登录，并打开近期聊天以加载数据库密钥。'
           : '请先手动打开电脑版微信并登录，再点击重新检查。自动获取不会强制关闭微信。',
     }, {
       id: 'database', label: '数据库目录',
-      status: input.database === 'ready' ? 'pass' : input.database === 'unreadable' || input.platform === 'darwin' ? 'blocked' : 'warning',
+      status: input.database === 'ready' ? 'pass' : 'blocked',
       detail: input.database === 'ready' ? '目录可读取，获取后会验证密钥。'
         : input.database === 'unreadable' ? '所选目录不存在或不可读取，请重新选择微信数据目录。'
-          : '尚未选择数据目录。选择后可自动验证密钥是否属于当前账号。',
+          : '请先选择微信数据目录；多个账号时需明确选择要连接的账号。',
     })
   }
   const blocker = checks.find(check => check.status === 'blocked')
